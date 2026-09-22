@@ -158,29 +158,82 @@ insight_box("insight_4_screen_vs_audi")
 st.divider()
 
 # ----------------------------------------------------------------------------
-# 5. 장르별 총 관객 수 분포 - 박스플롯
+# 5. 개봉일에 무슨 영화가 총관객 수가 많나 - 산점도
 # ----------------------------------------------------------------------------
-st.header("5. 장르별 총 관객 수 분포")
+st.header("5. 개봉일에 무슨 영화가 총관객 수가 많나")
 
-fig_box = px.box(
+fig_scatter_open = px.scatter(
     df,
-    x="genre",
+    x="openDt",
     y="total_audi",
-    title="장르별 총 관객 수 분포",
-    labels={"genre": "장르", "total_audi": "총 관객 수(명)"},
-    points="all",
+    hover_name="movieNm",
+    title="개봉일에 무슨 영화가 총관객 수가 많나",
+    labels={"openDt": "개봉일", "total_audi": "총 관객 수(명)"},
 )
-fig_box.update_layout(xaxis_tickangle=-30)
+fig_scatter_open.update_traces(
+    hovertemplate="<b>%{hovertext}</b><br>개봉일: %{x|%Y-%m-%d}<br>총 관객 수: %{y:,}명<extra></extra>"
+)
 
-st.plotly_chart(fig_box, use_container_width=True)
-insight_box("insight_5_genre_box")
+st.plotly_chart(fig_scatter_open, use_container_width=True)
+insight_box("insight_5_opendate_vs_total")
 
 st.divider()
 
 # ----------------------------------------------------------------------------
-# 5. 개봉 첫 주 관객 수와 총 관객 수의 관계 - 산점도
+# 6. 장르별 총 관객 수 분포 (10편 이상 장르만) - 박스플롯
 # ----------------------------------------------------------------------------
-st.header("6. 개봉 첫 주 관객 수와 총 관객 수의 관계")
+st.header("6. 장르별 총 관객 수 분포 (영화 10편 이상 장르만)")
+
+genre_movie_counts = df["genre"].value_counts()
+major_genres = genre_movie_counts[genre_movie_counts >= 10].index
+df_major_genres = df[df["genre"].isin(major_genres)]
+
+fig_box = px.box(
+    df_major_genres,
+    x="genre",
+    y="total_audi",
+    title="장르별 총 관객 수 분포 (영화 10편 이상 장르만)",
+    labels={"genre": "장르", "total_audi": "총 관객 수(명)"},
+    points="outliers",
+    hover_name="movieNm",
+)
+fig_box.update_layout(xaxis_tickangle=-30)
+
+st.plotly_chart(fig_box, use_container_width=True)
+insight_box("insight_6_genre_box")
+
+st.divider()
+
+# ----------------------------------------------------------------------------
+# 7. 개봉일 스크린 수와 총 관객 수의 관계 (버블 크기: 첫 주 관객 수)
+# ----------------------------------------------------------------------------
+st.header("7. 개봉일 스크린 수와 총 관객 수의 관계 (버블 크기: 첫 주 관객 수)")
+
+fig_bubble = px.scatter(
+    df,
+    x="first_scrn",
+    y="total_audi",
+    size="first_week_audi",
+    color="genre",
+    hover_name="movieNm",
+    title="개봉일 스크린 수 vs 총 관객 수 (버블 크기: 첫 주 관객 수)",
+    labels={
+        "first_scrn": "개봉일 스크린 수(개)",
+        "total_audi": "총 관객 수(명)",
+        "first_week_audi": "첫 주 관객 수(명)",
+    },
+    size_max=40,
+)
+
+st.plotly_chart(fig_bubble, use_container_width=True)
+insight_box("insight_7_screen_vs_audi_bubble")
+
+st.divider()
+
+# ----------------------------------------------------------------------------
+# 8. 개봉 첫 주 관객 수와 총 관객 수의 관계 - 산점도
+# ----------------------------------------------------------------------------
+st.header("8. 개봉 첫 주 관객 수와 총 관객 수의 관계")
 
 fig_scatter2 = px.scatter(
     df,
@@ -193,14 +246,14 @@ fig_scatter2 = px.scatter(
 )
 
 st.plotly_chart(fig_scatter2, use_container_width=True)
-insight_box("insight_5_firstweek_vs_total")
+insight_box("insight_8_firstweek_vs_total")
 
 st.divider()
 
 # ----------------------------------------------------------------------------
-# 6. 10위권 유지 일수와 총 관객 수의 관계 - 산점도
+# 9. 10위권 유지 일수와 총 관객 수의 관계 - 산점도
 # ----------------------------------------------------------------------------
-st.header("7. 박스오피스 10위권 유지 일수와 총 관객 수의 관계")
+st.header("9. 박스오피스 10위권 유지 일수와 총 관객 수의 관계")
 
 fig_scatter3 = px.scatter(
     df,
@@ -213,4 +266,4 @@ fig_scatter3 = px.scatter(
 )
 
 st.plotly_chart(fig_scatter3, use_container_width=True)
-insight_box("insight_6_days_vs_total")
+insight_box("insight_9_days_vs_total")
